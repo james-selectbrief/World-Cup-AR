@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WebXR Astronaut AR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- A-Frame Library -->
+  <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+  <!-- Hammer.js for touch gestures -->
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+</head>
+<body style="margin:0; overflow:hidden;">
+
+  <!-- A-Frame Scene -->
+  <a-scene embedded background="color: #000000" xrweb="allowedDevices:any; optionalFeatures: hit-test;">
+
+    <!-- Camera -->
+    <a-camera position="0 1.6 0"></a-camera>
+
+    <!-- Ground Plane -->
+    <a-plane rotation="-90 0 0" width="10" height="10" color="#444" opacity="0.5"></a-plane>
+
+    <!-- GLB Model -->
+    <a-entity
+      id="astronaut"
+      gltf-model="assets/astronaut.glb"
+      position="0 0 -2"
+      scale="1 1 1"
+      rotation="0 0 0"
+      gesture-handler>
+    </a-entity>
+
+  </a-scene>
+
+  <!-- Gesture Handler Component -->
+  <script>
+    AFRAME.registerComponent('gesture-handler', {
+      init: function () {
+        this.handleScale = 1;
+        const el = this.el;
+        const hammer = new Hammer(el.sceneEl.canvas);
+        hammer.get('pinch').set({ enable: true });
+        hammer.get('rotate').set({ enable: true });
+
+        hammer.on('pinch', (ev) => {
+          el.object3D.scale.set(this.handleScale * ev.scale, this.handleScale * ev.scale, this.handleScale * ev.scale);
+        });
+        hammer.on('pinchend', (ev) => {
+          this.handleScale *= ev.scale;
+        });
+        hammer.on('rotate', (ev) => {
+          el.object3D.rotation.y -= THREE.Math.degToRad(ev.rotation);
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
